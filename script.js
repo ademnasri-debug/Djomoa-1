@@ -78,3 +78,4 @@ function displayCalendar(startYear, endYear) {
 displayCalendar(1, 50);
 
 console.log("Djomoa Engine Running");
+document.body.style.background = "#111";
