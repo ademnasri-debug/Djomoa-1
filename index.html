@@ -104,4 +104,225 @@
             align-items: center;
             z-index: 2;
             padding: 20px;
-            animation: fadeIn 0
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* لوحة التحكم الرئيسية (البطاقات) */
+        #panel {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .card {
+            min-width: 240px;
+            padding: 30px 20px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .card i {
+            font-size: 36px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .fa-sun { color: #ffb300; text-shadow: 0 0 15px rgba(255,179,0,0.4); }
+        .fa-moon { color: #9ecbff; text-shadow: 0 0 15px rgba(158,203,255,0.4); }
+        .fa-calendar-days { color: #a7ffeb; text-shadow: 0 0 15px rgba(167,255,235,0.4); }
+
+        .title {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* تنسيق صناديق الصفحات الأخرى */
+        .searchBox, .aboutBox, .timelineBox {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            color: #ffd54f;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* المدخلات والأزرار لصفحة البحث */
+        .searchBox input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .searchBox input:focus {
+            border-color: #ffd54f;
+            box-shadow: 0 0 10px rgba(255, 213, 79, 0.2);
+        }
+
+        .searchBox button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #ffd54f;
+            color: #111;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .searchBox button:hover {
+            background: #ffe082;
+            transform: translateY(-2px);
+        }
+
+        .aboutBox p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-sun"></i> الرزنامة المزدوجة <i class="fa-solid fa-moon"></i>
+        </div>
+        <div class="menu">
+            <button onclick="showPage('homePage', this)" class="active-btn">الرئيسية</button>
+            <button onclick="showPage('searchPage', this)">البحث</button>
+            <button onclick="showPage('timelinePage', this)">الخط الزمني</button>
+            <button onclick="showPage('aboutPage', this)">حول النظام</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <canvas id="canvas"></canvas>
+
+        <section id="homePage" class="page active">
+            <div id="panel">
+                <div class="card">
+                    <i class="fa-solid fa-sun"></i>
+                    <div class="title">التاريخ الشمسي</div>
+                    <div class="value" id="solarText">1/1/1</div>
+                </div>
+
+                <div class="card">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="title">التاريخ القمري</div>
+                    <div class="value" id="lunarText">1/1/1</div>
+                </div>
+
+                <div class="card">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <div class="title">اسم اليوم</div>
+                    <div class="value" id="weekText">Sunday</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="searchPage" class="page">
+            <div class="searchBox">
+                <h2><i class="fa-solid fa-magnifying-glass"></i> البحث عن تاريخ</h2>
+                <input type="number" id="yearInput" placeholder="السنة">
+                <input type="number" id="monthInput" placeholder="الشهر">
+                <input type="number" id="dayInput" placeholder="اليوم">
+                <button onclick="searchDate()">بحث مرن</button>
+            </div>
+        </section>
+
+        <section id="timelinePage" class="page">
+            <div class="timelineBox">
+                <h2><i class="fa-solid fa-timeline"></i> الخط الزمني</h2>
+                <p>محتوى الخط الزمني والأحداث الفلكية والتقويمية ستظهر هنا.</p>
+            </div>
+        </section>
+
+        <section id="aboutPage" class="page">
+            <div class="aboutBox">
+                <h2><i class="fa-solid fa-circle-info"></i> حول النظام</h2>
+                <p>مشروع متطور يمثل نظام رزنامة مزدوجة (شمسي وقمري مستقل)، مصمم بمعادلات وخوارزميات دقيقة لحساب الفروقات الزمنية بدقة متناهية تمتد حتى 50,000 سنة.</p>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function showPage(pageId, buttonElement) {
+            // إخفاء كل الصفحات
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            // إظهار الصفحة المطلوبة
+            const selectedPage = document.getElementById(pageId);
+            if(selectedPage) {
+                selectedPage.classList.add('active');
+            }
+
+            // تحديث تصميم الزر النشط
+            const buttons = document.querySelectorAll('.menu button');
+            buttons.forEach(btn => btn.classList.remove('active-btn'));
+            if(buttonElement) {
+                buttonElement.classList.add('active-btn');
+            }
+        }
+    </script>
+
+    <script src="engine.js"></script>
+    <script src="timeline.js"></script>
+
+</body>
+</html>
