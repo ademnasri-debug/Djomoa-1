@@ -1,315 +1,271 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Djomoa | الرزمانة المزدوجة</title>
+
     <link rel="stylesheet" href="style.css">
-</head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Djomoa | الرزمانة المزدوجة</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
 
-<style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Cairo',sans-serif;
-}
+        body {
+            background: radial-gradient(circle at top, #1e3a8a 0%, #0f172a 40%, #020617 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-body{
-background:
-radial-gradient(circle at top,#1e3a8a 0%,#0f172a 40%,#020617 100%);
-color:white;
-overflow-x:hidden;
-min-height:100vh;
-}
+        /* خلفية متحركة */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(#38bdf8 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.08;
+            animation: move 40s linear infinite;
+            z-index: -1;
+        }
 
-/* خلفية متحركة */
+        @keyframes move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-300px, -300px); }
+        }
 
-body::before{
-content:'';
-position:fixed;
-width:200%;
-height:200%;
-background:
-radial-gradient(#38bdf8 1px, transparent 1px);
-background-size:40px 40px;
-opacity:0.08;
-animation:move 40s linear infinite;
-z-index:-1;
-}
+        /* Header */
+        header {
+            padding: 120px 20px 80px;
+            text-align: center;
+        }
 
-@keyframes move{
-0%{transform:translate(0,0);}
-100%{transform:translate(-300px,-300px);}
-}
+        .logo {
+            font-size: 65px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-/* Header */
+        .subtitle {
+            margin-top: 20px;
+            font-size: 22px;
+            color: #cbd5e1;
+            max-width: 800px;
+            margin-inline: auto;
+            line-height: 1.8;
+        }
 
-header{
-padding:120px 20px 80px;
-text-align:center;
-}
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-bottom: 40px;
+        }
 
-.logo{
-font-size:65px;
-font-weight:900;
-background:linear-gradient(90deg,#38bdf8,#818cf8);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
+        nav a {
+            text-decoration: none;
+            color: white;
+            padding: 14px 26px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            transition: 0.3s;
+            font-weight: 700;
+        }
 
-.subtitle{
-margin-top:20px;
-font-size:22px;
-color:#cbd5e1;
-max-width:800px;
-margin-inline:auto;
-line-height:1.8;
-}
+        nav a:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            transform: translateY(-4px);
+        }
 
-/* Navigation */
+        /* Hero Card */
+        .hero {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
 
-nav{
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-padding-bottom:40px;
-}
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(18px);
+            padding: 35px;
+            border-radius: 24px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
 
-nav a{
-text-decoration:none;
-color:white;
-padding:14px 26px;
-border-radius:14px;
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(12px);
-transition:0.3s;
-font-weight:700;
-}
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transition: 0.8s;
+        }
 
-nav a:hover{
-background:#38bdf8;
-color:#0f172a;
-transform:translateY(-4px);
-}
+        .card:hover::before {
+            left: 100%;
+        }
 
-/* Hero Card */
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #38bdf8;
+            box-shadow: 0 15px 40px rgba(56, 189, 248, 0.2);
+        }
 
-.hero{
-max-width:1200px;
-margin:auto;
-padding:20px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:25px;
-}
+        .card h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #38bdf8;
+        }
 
-.card{
-background:rgba(255,255,255,0.06);
-border:1px solid rgba(255,255,255,0.1);
-backdrop-filter:blur(18px);
-padding:35px;
-border-radius:24px;
-transition:0.4s;
-position:relative;
-overflow:hidden;
-}
+        .card p {
+            line-height: 2;
+            color: #e2e8f0;
+        }
 
-.card::before{
-content:'';
-position:absolute;
-top:0;
-left:-100%;
-width:100%;
-height:100%;
-background:linear-gradient(
-90deg,
-transparent,
-rgba(255,255,255,0.08),
-transparent
-);
-transition:0.8s;
-}
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 70px 20px;
+        }
 
-.card:hover::before{
-left:100%;
-}
+        .stat {
+            text-align: center;
+        }
 
-.card:hover{
-transform:translateY(-8px);
-border-color:#38bdf8;
-box-shadow:0 15px 40px rgba(56,189,248,0.2);
-}
+        .stat h3 {
+            font-size: 48px;
+            color: #38bdf8;
+        }
 
-.card h2{
-font-size:28px;
-margin-bottom:15px;
-color:#38bdf8;
-}
+        .stat p {
+            color: #cbd5e1;
+        }
 
-.card p{
-line-height:2;
-color:#e2e8f0;
-}
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 60px 20px;
+        }
 
-/* Stats */
+        .cta button {
+            padding: 18px 40px;
+            font-size: 20px;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            color: white;
+            cursor: pointer;
+            font-weight: 900;
+            transition: 0.4s;
+        }
 
-.stats{
-display:flex;
-justify-content:center;
-gap:30px;
-flex-wrap:wrap;
-padding:70px 20px;
-}
+        .cta button:hover {
+            transform: scale(1.07);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+        }
 
-.stat{
-text-align:center;
-}
-
-.stat h3{
-font-size:48px;
-color:#38bdf8;
-}
-
-.stat p{
-color:#cbd5e1;
-}
-
-/* CTA */
-
-.cta{
-text-align:center;
-padding:60px 20px;
-}
-
-.cta button{
-padding:18px 40px;
-font-size:20px;
-border:none;
-border-radius:18px;
-background:linear-gradient(90deg,#38bdf8,#818cf8);
-color:white;
-cursor:pointer;
-font-weight:900;
-transition:0.4s;
-}
-
-.cta button:hover{
-transform:scale(1.07);
-box-shadow:0 0 30px rgba(56,189,248,0.5);
-}
-
-/* Footer */
-
-footer{
-text-align:center;
-padding:40px;
-color:#94a3b8;
-margin-top:60px;
-border-top:1px solid rgba(255,255,255,0.08);
-}
-
-</style>
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
 </head>
 
 <body>
 
-<header>
+    <header>
+        <div class="logo">📅 DJOMOA</div>
+        <p class="subtitle">
+            منصة الرزمانة المزدوجة لحساب الزمن بين النظامين الشمسي والقمري
+            مع نموذج تراكمي يمتد حتى 50,000 سنة.
+        </p>
+    </header>
 
-<div class="logo">
-📅 DJOMOA
-</div>
+    <nav>
+        <a href="#">الرئيسية</a>
+        <a href="#">الرزمانة</a>
+        <a href="#">الحساب</a>
+        <a href="#">المخطط الزمني</a>
+    </nav>
 
-<p class="subtitle">
-منصة الرزمانة المزدوجة لحساب الزمن بين النظامين الشمسي والقمري
-مع نموذج تراكمي يمتد حتى 50,000 سنة.
-</p>
+    <section class="hero">
+        <div class="card">
+            <h2>🌍 الرؤية</h2>
+            <p>بناء نظام زمني متكامل يجمع بين التقويم الشمسي والقمري في واجهة بصرية حديثة ودقيقة.</p>
+        </div>
 
-</header>
+        <div class="card">
+            <h2>📆 الرزمانة</h2>
+            <p>عرض السنوات والأيام بشكل تراكمي مع احتساب الفروقات الزمنية الطويلة.</p>
+        </div>
 
-<nav>
-<a href="#">الرئيسية</a>
-<a href="#">الرزمانة</a>
-<a href="#">الحساب</a>
-<a href="#">المخطط الزمني</a>
-</nav>
+        <div class="card">
+            <h2>⚡ التقنية</h2>
+            <p>موقع سريع وحديث مبني بتقنيات الويب ويعمل مباشرة على GitHub Pages.</p>
+        </div>
+    </section>
 
-<section class="hero">
+    <section class="stats">
+        <div class="stat">
+            <h3>50K+</h3>
+            <p>سنة مستهدفة</p>
+        </div>
 
-<div class="card">
-<h2>🌍 الرؤية</h2>
-<p>
-بناء نظام زمني متكامل يجمع بين التقويم الشمسي والقمري
-في واجهة بصرية حديثة ودقيقة.
-</p>
-</div>
+        <div class="stat">
+            <h3>2</h3>
+            <p>تقويمات مدمجة</p>
+        </div>
 
-<div class="card">
-<h2>📆 الرزمانة</h2>
-<p>
-عرض السنوات والأيام بشكل تراكمي
-مع احتساب الفروقات الزمنية الطويلة.
-</p>
-</div>
+        <div class="stat">
+            <h3>∞</h3>
+            <p>توسع مستقبلي</p>
+        </div>
+    </section>
 
-<div class="card">
-<h2>⚡ التقنية</h2>
-<p>
-موقع سريع وحديث مبني بتقنيات الويب
-ويعمل مباشرة على GitHub Pages.
-</p>
-</div>
+    <section class="cta">
+        <button onclick="showMessage()">تشغيل النظام التجريبي</button>
+        <p id="msg" style="margin-top:25px; font-size:20px; color:#38bdf8;"></p>
+    </section>
 
-</section>
+    <footer>
+        © 2026 Djomoa Project — الرزمانة المزدوجة
+    </footer>
 
-<section class="stats">
-
-<div class="stat">
-<h3>50K+</h3>
-<p>سنة مستهدفة</p>
-</div>
-
-<div class="stat">
-<h3>2</h3>
-<p>تقويمات مدمجة</p>
-</div>
-
-<div class="stat">
-<h3>∞</h3>
-<p>توسع مستقبلي</p>
-</div>
-
-</section>
-
-<section class="cta">
-
-<button onclick="showMessage()">
-تشغيل النظام التجريبي
-</button>
-
-<p id="msg" style="margin-top:25px;font-size:20px;color:#38bdf8;"></p>
-
-</section>
-
-<footer>
-© 2026 Djomoa Project — الرزمانة المزدوجة
-</footer>
-
-<script>
-
-function showMessage(){
-
-document.getElementById("msg").innerHTML=
-"تم تشغيل النظام التجريبي بنجاح ✔";
-
-}
-
-</script>
-<script src="script.js"></script>
+    <script>
+        function showMessage(){
+            document.getElementById("msg").innerHTML = "تم تشغيل النظام التجريبي بنجاح ✔";
+        }
+    </script>
+    <script src="script.js"></script>
 </body>
 </html>
