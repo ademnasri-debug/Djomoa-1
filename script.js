@@ -76,3 +76,5 @@ function displayCalendar(startYear, endYear) {
 
 // مثال تشغيل
 displayCalendar(1, 50);
+
+console.log("Djomoa Engine Running");
