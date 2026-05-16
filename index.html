@@ -41,7 +41,30 @@ body{
     background:rgba(0,0,0,0.2);
 
     backdrop-filter:blur(3px);
-}
+}<section id="homePage" class="page active"></section>
+
+<section id="searchPage" class="page">
+  <div class="searchBox">
+    <h2>البحث عن تاريخ</h2>
+
+    <input type="number" id="yearInput" placeholder="السنة">
+    <input type="number" id="monthInput" placeholder="الشهر">
+    <input type="number" id="dayInput" placeholder="اليوم">
+
+    <button onclick="searchDate()">بحث</button>
+  </div>
+</section>
+
+<section id="timelinePage" class="page">
+  <h2 class="pageTitle">الخط الزمني</h2>
+</section>
+
+<section id="aboutPage" class="page">
+  <div class="aboutBox">
+    <h2>حول النظام</h2>
+    <p>هذا المشروع يمثل نظام رزنامة مزدوجة شمسي وقمري مستقل يمتد حتى 50,000 سنة.</p>
+  </div>
+</section>
 
 header{
     width:100%;
