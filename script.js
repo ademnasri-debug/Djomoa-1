@@ -1,109 +1,148 @@
-// ===============================
-// Djomoa Dual Calendar Engine
-// ===============================
+// ====================================================
+//        Djomoa Core Engine: The Pure Simulator
+// ====================================================
 
-// الثوابت الفلكية
-const SOLAR_YEAR_DAYS = 365.2425; // عدد أيام السنة الشمسية المعيارية
-const LUNAR_YEAR_DAYS = 354.367;  // عدد أيام السنة القمرية المعيارية
-const YEAR_DIFF = SOLAR_YEAR_DAYS - LUNAR_YEAR_DAYS; // الفارق السنوي بالأيام
+// المصفوفة المرجعية لأيام الأسبوع (نقطة الانطلاق الثابتة للمشروع: اليوم 1 هو الجمعة)
+const WEEK_DAYS = ["الجمعة", "السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"];
 
-// 1. نظام التنقل بين صفحات المنصة (SPA)
-function switchPage(pageId) {
-    // إخفاء جميع الصفحات
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+// أطوال الشهور الشمسية المعيارية
+const SOLAR_MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+// أسماء الشهور لغرض العرض في الواجهة
+const SOLAR_MONTH_NAMES = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+const LUNAR_MONTH_NAMES = ["محرم", "صفر", "ربيع الأول", "ربيع الآخر", "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان", "رمضان", "شوال", "ذو القعدة", "ذو الحجة"];
+
+// 1. تدقيق كبس السنة الشمسية (النظام اليولياني/القرني المعياري)
+function isSolarLeap(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+// 2. تدقيق كبس السنة القمرية (الدورة الاصطلاحية الثلاثينية)
+function isLunarLeap(year) {
+    const leapYearsInCycle = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29];
+    return leapYearsInCycle.includes(year % 30);
+}
+
+// 3. دالة المحاكاة المطلقة: الحساب يوماً بيوم وتتبع التقويمين معاً
+function runAbsoluteSimulation() {
+    // إعدادات نقطة الصفر المشتركة (1 يناير سنة 1 = 1 محرم سنة 1)
+    let sDay = 1, sMonth = 0, sYear = 1; // عدادات التقويم الشمسي
+    let lDay = 1, lMonth = 0, lYear = 1; // عدادات التقويم القمري
     
-    // إزالة الصفة النشطة من جميع أزرار القائمة
-    document.querySelectorAll('.menu button').forEach(btn => {
-        btn.classList.remove('active-btn');
-    });
+    let totalDaysElapsed = 0; // العداد الكلي للأيام المارة في المشروع
+    const TARGET_LUNAR_YEAR = 49999; // سقف التوقف القمري المستهدف
     
-    // إظهار الصفحة المطلوبة
-    const targetPage = document.getElementById(`${pageId}Page`);
-    if (targetPage) {
-        targetPage.classList.add('active');
+    let snapshotResult = null;
+
+    // حلقة التكرار التي تمشي عبر الزمن يوماً تلو الآخر
+    while (true) {
+        totalDaysElapsed++;
+
+        // [أ] تتبع حركة التاريخ القمري الفعلي
+        let currentLunarMonthDays = (lMonth % 2 === 0) ? 30 : 29; // شهور وترية وزوجية بالتناوب
+        if (lMonth === 11) { // شهر ذو الحجة يتأثر بالركود والكبس
+            currentLunarMonthDays = isLunarLeap(lYear) ? 30 : 29;
+        }
+
+        // قنص اللحظة التاريخية المطلوبة: إتمام 30 ذو الحجة سنة 49999
+        if (lYear === TARGET_LUNAR_YEAR && lMonth === 11 && lDay === currentLunarMonthDays) {
+            let dayOfWeekIndex = (totalDaysElapsed - 1) % 7; // استخراج اسم اليوم بدقة رياضية
+            
+            snapshotResult = {
+                lunarDate: `${lDay} ${LUNAR_MONTH_NAMES[lMonth]} ${lYear} هـ`,
+                solarDate: `${sDay} ${SOLAR_MONTH_NAMES[sMonth]} ${sYear} م`,
+                dayName: WEEK_DAYS[dayOfWeekIndex],
+                daysCount: totalDaysElapsed
+            };
+            break; // إيقاف العداد القمري وتجميد المحاكاة فوراً عند خط النهاية
+        }
+
+        // الانتقال لليوم القمري التالي
+        lDay++;
+        if (lDay > currentLunarMonthDays) {
+            lDay = 1;
+            lMonth++;
+            if (lMonth > 11) {
+                lMonth = 0;
+                lYear++;
+            }
+        }
+
+        // [ب] تتبع حركة التاريخ الشمسي الفعلي بالتوازي
+        let currentSolarMonthDays = SOLAR_MONTH_DAYS[sMonth];
+        if (sMonth === 1 && isSolarLeap(sYear)) { // معالجة 29 فبراير في السنوات الكبيسة شمسياً
+            currentSolarMonthDays = 29;
+        }
+
+        // الانتقال لليوم الشمسي التالي
+        sDay++;
+        if (sDay > currentSolarMonthDays) {
+            sDay = 1;
+            sMonth++;
+            if (sMonth > 11) {
+                sMonth = 0;
+                sYear++;
+            }
+        }
     }
-    
-    // تفعيل الزر المضغوط
-    const clickedBtn = Array.from(document.querySelectorAll('.menu button')).find(btn => btn.getAttribute('onclick').includes(pageId));
-    if (clickedBtn) {
-        clickedBtn.classList.add('active-btn');
-    }
+
+    return snapshotResult;
 }
 
-// 2. المحرك الرياضي للحساب الزمني
-// حساب الفارق التراكمي بالأيام
-function cumulativeDifference(years) {
-    return (YEAR_DIFF * years).toFixed(1);
-}
+// 4. ربط العداد بالواجهة (عند الضغط على الزر يتم تفعيل المحاكي وعرض النتيجة)
+function initDjomoaEngine() {
+    const calcBtn = document.getElementById("calcBtn") || document.querySelector(".searchBox button");
+    const container = document.querySelector(".searchBox");
 
-// تحويل السنوات الشمسية إلى قمرية
-function solarToLunarYears(solarYears) {
-    return Math.floor(solarYears * SOLAR_YEAR_DAYS / LUNAR_YEAR_DAYS);
-}
+    if (!calcBtn || !container) return;
 
-// تحويل السنوات القمرية إلى شمسية
-function lunarToSolarYears(lunarYears) {
-    return Math.floor(lunarYears * LUNAR_YEAR_DAYS / SOLAR_YEAR_DAYS);
-}
-
-// 3. تحديث بيانات لوحة التحكم الرئيسية تلقائياً (السنوات الحالية)
-function initDashboard() {
-    const currentSolarYear = 2026; // السنة الشمسية الحالية
-    const currentLunarYear = solarToLunarYears(currentSolarYear - 622); // التقريب الفلكي للهجرة
-
-    const solarElem = document.getElementById("solarValue");
-    const lunarElem = document.getElementById("lunarValue");
-    const accumElem = document.getElementById("accumulatedValue");
-
-    if (solarElem) solarElem.textContent = `${currentSolarYear} م`;
-    if (lunarElem) lunarElem.textContent = `${currentLunarYear} هـ`;
-    if (accumElem) accumElem.textContent = `± ${cumulativeDifference(50000)} يوم`;
-}
-
-// 4. معالجة عمليات صفحة البحث والتحويل
-function handleCalculation() {
-    const yearInput = document.getElementById("yearInput");
-    const calcBtn = document.getElementById("calcBtn");
-    
-    if (!yearInput || !calcBtn) return;
+    // تهيئة نص الزر ليدل على العداد الحقيقي
+    calcBtn.textContent = "تشغيل العداد المثالي (50,000 سنة)";
 
     calcBtn.addEventListener("click", () => {
-        const inputVal = parseInt(yearInput.value);
-        
-        if (!inputVal || inputVal <= 0) {
-            alert("يرجى إدخال سنة صحيحة أكبر من الصفر");
-            return;
+        // تشغيل العداد
+        const result = runAbsoluteSimulation();
+
+        // إنشاء أو تحديث صندوق عرض النتائج في الواجهة
+        let resultBox = document.getElementById("engineResult");
+        if (!resultBox) {
+            resultBox = document.createElement("div");
+            resultBox.id = "engineResult";
+            resultBox.style.marginTop = "25px";
+            resultBox.style.padding = "20px";
+            resultBox.style.background = "rgba(0, 0, 0, 0.75)";
+            resultBox.style.borderRadius = "16px";
+            resultBox.style.border = "2px solid #ffd54f";
+            resultBox.style.textAlign = "right";
+            container.appendChild(resultBox);
         }
 
-        const lunarEquiv = solarToLunarYears(inputVal);
-        const diffDays = cumulativeDifference(inputVal);
+        resultBox.innerHTML = `
+            <h3 style="color: #ffd54f; margin-bottom: 15px; font-size: 18px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">📊 نتيجة العداد الحقيقي لـ Djomoa</h3>
+            
+            <p style="margin: 8px 0; font-size: 15px; color: #fff;">🛑 <b>نقطة تجمد العداد القمري:</b> <span style="color: #ffb300; font-weight: bold;">${result.lunarDate}</span></p>
+            
+            <div style="background: rgba(167, 255, 235, 0.05); border-radius: 8px; padding: 12px; margin-top: 12px; border-right: 4px solid #a7ffeb;">
+                <p style="margin: 0; font-size: 14px; color: #a7ffeb; font-weight: bold;">📅 التاريخ الشمسي الموازي في تلك اللحظة:</p>
+                <p style="margin: 5px 0 0 0; font-size: 16px; color: #fff;">
+                    يوافق تماماً: <span style="color: #ffd54f; font-weight: bold;">${result.solarDate}</span>
+                </p>
+            </div>
 
-        // عرض النتيجة بأسلوب حواري أنيق داخل صندوق البحث
-        let resultContainer = document.getElementById("searchResult");
-        if (!resultContainer) {
-            resultContainer = document.createElement("div");
-            resultContainer.id = "searchResult";
-            resultContainer.style.marginTop = "20px";
-            resultContainer.style.padding = "15px";
-            resultContainer.style.background = "rgba(255,255,255,0.05)";
-            resultContainer.style.borderRadius = "10px";
-            resultContainer.style.border = "1px solid rgba(255,213,79,0.2)";
-            document.querySelector(".searchBox").appendChild(resultContainer);
-        }
+            <div style="background: rgba(255, 213, 79, 0.05); border-radius: 8px; padding: 12px; margin-top: 10px; border-right: 4px solid #ffd54f;">
+                <p style="margin: 0; font-size: 14px; color: #ffd54f; font-weight: bold;">📅 اسم اليوم الحقيقي عند التوقف الدقيق:</p>
+                <p style="margin: 5px 0 0 0; font-size: 18px; color: #fff; font-weight: bold; text-align: center; color: #a7ffeb;">
+                    يوم [ ${result.dayName} ]
+                </p>
+            </div>
 
-        resultContainer.innerHTML = `
-            <p style="margin-bottom: 8px; color: #ffd54f; font-weight: bold;">نتائج الحساب لـ ${inputVal} سنة شمسية:</p>
-            <p style="font-size: 14px; color: #fff;">يعادل فلكياً: <span style="color: #a7ffeb; font-weight: bold;">${lunarEquiv} سنة قمرية</span></p>
-            <p style="font-size: 14px; color: #fff;">الفارق التراكمي المفقود: <span style="color: #9ecbff; font-weight: bold;">${diffDays} يوم</span></p>
+            <p style="margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.4); text-align: center;">
+                ⏳ عدد الأيام المطلقة المارة المتراكمة بالكامل: ${result.daysCount.toLocaleString()} يوماً.
+            </p>
         `;
     });
 }
 
-// تشغيل المحرك عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
-    initDashboard();
-    handleCalculation();
-    console.log("Djomoa Dual Calendar Engine - Initialized Successfully");
+    initDjomoaEngine();
 });
