@@ -9,7 +9,7 @@
 body {
     overflow: hidden;
     color: white;
-    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)),
+    background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.85)),
                 url("https://images.unsplash.com/photo-1532693322450-2cb5c511067d?q=80&w=1920");
     background-size: cover;
     background-position: center;
