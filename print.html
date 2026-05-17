@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطبوعات رُزمانة جُمُعَة المزدوجة</title>
+    <style>
+        :root {
+            --primary-green: #0d5c3a;
+            --text-dark: #2d3748;
+            --bg-light: #f7fafc;
+            --gold-accent: #b794f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e2e8f0;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* لوحة التحكم العلوية (تختفي أثناء الطباعة) */
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .control-panel input {
+            padding: 10px;
+            font-size: 16px;
+            width: 120px;
+            text-align: center;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+
+        .control-panel button {
+            padding: 10px 20px;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* تصميم الصفحة المعدة للطباعة (A4) */
+        .page-print {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            border: 4px double var(--primary-green);
+            position: relative;
+        }
+
+        .header-title {
+            text-align: center;
+            color: var(--primary-green);
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            margin: 0;
+        }
+
+        .header-title .year-badge {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3748;
+            letter-spacing: 2px;
+        }
+
+        /* شبكة الشهور (3 شهور في السطر مثل الصورة) */
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .month-card {
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .month-header {
+            background: var(--primary-green);
+            color: white;
+            text-align: center;
+            padding: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* جدول الأيام داخل الشهر */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 10px;
+        }
+
+        .week-day-name {
+            background: #edf2f7;
+            font-weight: bold;
+            padding: 4px 0;
+            border-bottom: 1px solid #cbd5e0;
+            color: #4a5568;
+        }
+
+        .day-cell {
+            border-bottom: 1px dotted #e2e8f0;
+            border-left: 1px dotted #e2e8f0;
+            padding: 4px 0;
+            min-height: 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .day-cell:nth-child(7n) { border-left: none; }
+
+        /* الأرقام المزدوجة */
+        .lunar-num {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .solar-muted {
+            font-size: 9px;
+            color: #718096;
+            margin-top: 2px;
+            background: #f7fafc;
+            border-radius: 3px;
+            padding: 1px;
+        }
+
+        .empty-cell {
+            background: #f7fafc;
+        }
+
+        /* إعدادات أمر الطباعة الحقيقي */
+        @media print {
+            body { background: white; padding: 0; }
+            .control-panel { display: none; }
+            .page-print { box-shadow: none; margin: 0; width: 100%; height: 100%; border: 3px double var(--primary-green); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <label>أدخل السنة الهجرية لإنشاء كتابها:</label>
+        <input type="number" id="inputYear" value="1446" min="1" max="49999">
+        <button onclick="generateYearlyCalendar()">توليد الصفحة المزدوجة</button>
+        <button onclick="window.print()" style="background: #2b6cb0; margin-right: 5px;">🖨️ طباعة الصفحات</button>
+    </div>
+
+    <div class="page-print" id="printArea">
+        <div class="header-title">
+            <h1>الرُّزْمَانَة المزدوجة التراكمية لـمنصة جُمُعَة</h1>
+            <div class="year-badge" id="pageYearTitle">السنة الهجرية: 1446 هـ</div>
+        </div>
+
+        <div class="months-grid" id="monthsContainer">
+            </div>
+    </div>
+
+    <script>
+        const WEEK_DAYS_SHORT = ["أحد", "إثن", "ثلا", "أرب", "خمي", "جمعة", "سبت"];
+        const LUNAR_MONTH_NAMES = ["1- محرم", "2- صفر", "3- ربيع الأول", "4- ربيع الآخر", "5- جمادى الأولى", "6- جمادى الآخرة", "7- رجب", "8- شعبان", "9- رمضان", "10- شوال", "11- ذو القعدة", "12- ذو الحجة"];
+        const SOLAR_MONTH_NAMES_SHORT = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+
+        // قوانين الكبس الأساسية للمحرك
+        function isSolarLeap(year) { return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0); }
+        function isLunarLeap(year) { return [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29].includes(year % 30); }
+
+        // الدالة الكبرى لحساب وتوليد السنة بالكامل يوماً بيوم لتوزيعها على مربعات تشبه صورتك
+        function generateYearlyCalendar() {
+            const targetYear = parseInt(document.getElementById("inputYear").value);
+            document.getElementById("pageYearTitle").textContent = `السنة الهجرية المزدوجة: ${targetYear} هـ`;
+            
+            const container = document.getElementById("monthsContainer");
+            container.innerHTML = ""; // تصفية الساحة
+
+            // مصفوفة لتخزين الأيام لكل شهر من الشهور الـ 12 لهذه السنة المحددة
+            let yearData = Array.from({length: 12}, () => []);
+
+            // تشغيل المحاكاة من الصفر المطلق لجمع بيانات الأيام حتى نصل للسنة المستهدفة
+            let sDay = 1, sMonth = 0, sYear = 1;
+            let lDay = 1, lMonth = 0, lYear = 1;
+            let totalDaysElapsed = 0;
+
+            while (lYear <= targetYear) {
+                totalDaysElapsed++;
+
+                let currentLunarMonthDays = (lMonth % 2 === 0) ? 30 : 29;
+                if (lMonth === 11) { currentLunarMonthDays = isLunarLeap(lYear) ? 30 : 29; }
+
+                // إذا وصلنا للسنة المطلوبة، نقوم بحفظ تفاصيل اليوم المزدوج فوراً لتصميم الصفحة
+                if (lYear === targetYear) {
+                    let dayOfWeekIndex = (totalDaysElapsed - 1) % 7; // 0=الجمعة، 1=السبت...
+                    // تحويل المؤشر ليتوافق مع ترتيب المصفوفة القياسية (أحد، إثنين..)
+                    // بما أن 0 هو الجمعة، فإن الأحد سيكون كشكل نسبي
+                    let standardWeekIndex = (dayOfWeekIndex + 5) % 7; 
+
+                    yearData[lMonth].push({
+                        lunarDay: lDay,
+                        solarDay: sDay,
+                        solarMonthName: SOLAR_MONTH_NAMES_SHORT[sMonth],
+                        solarYear: sYear,
+                        weekIndex: standardWeekIndex
+                    });
+                }
+
+                // الانتقال لليوم القمري التالي
+                lDay++;
+                if (lDay > currentLunarMonthDays) {
+                    lDay = 1; lMonth++;
+                    if (lMonth > 11) { lMonth = 0; lYear++; }
+                }
+
+                // الانتقال لليوم الشمسي التالي بالتوازي
+                let currentSolarMonthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][sMonth];
+                if (sMonth === 1 && isSolarLeap(sYear)) { currentSolarMonthDays = 29; }
+
+                sDay++;
+                if (sDay > currentSolarMonthDays) {
+                    sDay = 1; sMonth++;
+                    if (sMonth > 11) { sMonth = 0; sYear++; }
+                }
+            }
+
+            // الآن نقوم برسم الـ 12 شهراً بناءً على البيانات الدقيقة المستخرجة
+            for (let m = 0; m < 12; m++) {
+                let monthHtml = `<div class="month-card">
+                                    <div class="month-header">${LUNAR_MONTH_NAMES[m]}</div>
+                                    <div class="days-grid">`;
+
+                // حقن أسماء الأيام في ترويسة كرت الشهر
+                WEEK_DAYS_SHORT.forEach(d => { monthHtml += `<div class="week-day-name">${d}</div>`; });
+
+                let days = yearData[m];
+                if (days.length > 0) {
+                    let firstDayWeekIndex = days[0].weekIndex;
+
+                    // وضع مربعات فارغة ممهدة قبل أول يوم في الشهر حسب موقعه في الأسبوع
+                    for (let f = 0; f < firstDayWeekIndex; f++) {
+                        monthHtml += `<div class="day-cell empty-cell"></div>`;
+                    }
+
+                    // وضع الأيام المزدوجة يوماً بيوم
+                    days.forEach(d => {
+                        monthHtml += `<div class="day-cell">
+                                        <div class="lunar-num">${d.lunarDay}</div>
+                                        <div class="solar-muted">${d.solarDay} ${d.solarMonthName}</div>
+                                      </div>`;
+                    });
+                }
+
+                monthHtml += `</div></div>`;
+                container.innerHTML += monthHtml;
+            }
+        }
+
+        // تشغيل التوليد التلقائي لأول مرة عند فتح الصفحة
+        document.addEventListener("DOMContentLoaded", generateYearlyCalendar);
+    </script>
+</body>
+</html>
